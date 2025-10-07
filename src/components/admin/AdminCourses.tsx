@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit, Eye, EyeOff, Archive } from 'lucide-react';
+import { Plus, Edit, Eye, EyeOff, Archive, Grid, List } from 'lucide-react';
 import { courses } from '../../data/adminMockData';
 import CourseEditModal from './CourseEditModal';
 import Toast from './Toast';
@@ -16,6 +16,7 @@ const AdminCourses: React.FC = () => {
     message: '',
     type: 'success' as 'success' | 'error'
   });
+  const [viewMode, setViewMode] = useState<'table' | 'card'>('table');
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -110,18 +111,18 @@ const AdminCourses: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* ページタイトル */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">講座管理</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">講座管理</h1>
           <p className="mt-1 text-sm text-gray-500">
             講座の作成、編集、公開管理を行います
           </p>
         </div>
         <button 
           onClick={handleNewCourse}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+          className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-2" />
           新規追加
@@ -129,7 +130,7 @@ const AdminCourses: React.FC = () => {
       </div>
 
       {/* フィルター */}
-      <div className="bg-white shadow rounded-lg p-6">
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="search" className="block text-sm font-medium text-gray-700">
@@ -166,8 +167,36 @@ const AdminCourses: React.FC = () => {
       {/* 講座一覧 */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
+          {/* ビュー切り替えボタン */}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">講座一覧</h3>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setViewMode('table')}
+                className={`p-2 rounded-md ${
+                  viewMode === 'table' 
+                    ? 'bg-blue-100 text-blue-600' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                <List className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-2 rounded-md ${
+                  viewMode === 'card' 
+                    ? 'bg-blue-100 text-blue-600' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+              >
+                <Grid className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {viewMode === 'table' ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -236,12 +265,61 @@ const AdminCourses: React.FC = () => {
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredCourses.map((course) => (
+                <div key={course.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-lg font-medium text-gray-900 truncate">{course.title}</h4>
+                    {getStatusBadge(course.status)}
+                  </div>
+                  <div className="space-y-2 mb-4">
+                    <p className="text-sm text-gray-600">カテゴリ: {course.category}</p>
+                    <p className="text-sm text-gray-600">動画数: {course.videoCount}本</p>
+                    <p className="text-sm text-gray-500">
+                      更新日: {new Date(course.updatedAt).toLocaleDateString('ja-JP')}
+                    </p>
+                  </div>
+                  <div className="flex justify-end space-x-2">
+                    <button 
+                      onClick={() => handleEditCourse(course)}
+                      className="text-blue-600 hover:text-blue-900 p-1"
+                      title="編集"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </button>
+                    {course.status === 'published' ? (
+                      <button 
+                        className="text-yellow-600 hover:text-yellow-900 p-1"
+                        title="非公開"
+                      >
+                        <EyeOff className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button 
+                        className="text-green-600 hover:text-green-900 p-1"
+                        title="公開"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
+                    )}
+                    <button 
+                      className="text-gray-600 hover:text-gray-900 p-1"
+                      title="アーカイブ"
+                    >
+                      <Archive className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* 統計情報 */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">

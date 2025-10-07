@@ -144,6 +144,40 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Account Management */}
+              <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">アカウント管理</h3>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => navigate('/change-password')}
+                    className="w-full text-left p-3 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-gray-700">パスワード変更</span>
+                      <span className="text-gray-400">→</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate('/subscription')}
+                    className="w-full text-left p-3 bg-white rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-gray-700">サブスクリプション管理</span>
+                      <span className="text-gray-400">→</span>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => navigate('/delete-account')}
+                    className="w-full text-left p-3 bg-white rounded-lg hover:bg-red-50 hover:border-red-200 transition-colors border border-gray-200"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium text-red-600">アカウント削除</span>
+                      <span className="text-red-400">→</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               {/* Simple Progress */}
               <div>
                 <div className="flex justify-between items-center mb-2">

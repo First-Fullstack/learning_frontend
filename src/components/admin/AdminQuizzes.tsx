@@ -63,18 +63,18 @@ const AdminQuizzes: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* ページタイトル */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">クイズ管理</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">クイズ管理</h1>
           <p className="mt-1 text-sm text-gray-500">
             学習クイズの作成・編集・管理を行います
           </p>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-2" />
           新規クイズ作成
@@ -82,7 +82,7 @@ const AdminQuizzes: React.FC = () => {
       </div>
 
       {/* 検索・フィルター */}
-      <div className="bg-white shadow rounded-lg p-6">
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="flex-1">
             <div className="relative">
@@ -113,7 +113,7 @@ const AdminQuizzes: React.FC = () => {
 
       {/* クイズ一覧 */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
             クイズ一覧 ({filteredQuizzes.length})
           </h3>
@@ -122,22 +122,22 @@ const AdminQuizzes: React.FC = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   クイズ名
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   講座
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ステータス
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   問題数
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   作成日
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -145,15 +145,15 @@ const AdminQuizzes: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredQuizzes.map((quiz) => (
                 <tr key={quiz.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{quiz.title}</div>
+                      <div className="text-sm font-medium text-gray-900 truncate">{quiz.title}</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 truncate">
                     {quiz.courseTitle}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                       quiz.status === 'active' 
                         ? 'bg-green-100 text-green-800' 
@@ -162,33 +162,36 @@ const AdminQuizzes: React.FC = () => {
                       {quiz.status === 'active' ? 'アクティブ' : '非アクティブ'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {quiz.questionCount}問
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                     {quiz.createdAt}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
+                  <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex items-center space-x-1 sm:space-x-2">
                       <button
                         onClick={() => handleEdit(quiz)}
-                        className="text-blue-600 hover:text-blue-900"
+                        className="text-blue-600 hover:text-blue-900 p-1"
+                        title="編集"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => toggleStatus(quiz.id)}
-                        className={`${
+                        className={`p-1 ${
                           quiz.status === 'active' 
                             ? 'text-yellow-600 hover:text-yellow-900' 
                             : 'text-green-600 hover:text-green-900'
                         }`}
+                        title={quiz.status === 'active' ? '非アクティブ化' : 'アクティブ化'}
                       >
                         {quiz.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                       </button>
                       <button
                         onClick={() => handleDelete(quiz.id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-600 hover:text-red-900 p-1"
+                        title="削除"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

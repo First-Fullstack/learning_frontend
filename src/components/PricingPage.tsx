@@ -1,8 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Check, Star, Zap, Crown, BookOpen } from 'lucide-react';
 
 const PricingPage: React.FC = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -108,7 +110,10 @@ const PricingPage: React.FC = () => {
               </li>
             </ul>
 
-            <button className="w-full bg-white text-orange-500 py-4 rounded-2xl font-bold text-center hover:bg-gray-50 transition-colors">
+            <button 
+              onClick={() => navigate('/checkout')}
+              className="w-full bg-white text-orange-500 py-4 rounded-2xl font-bold text-center hover:bg-gray-50 transition-colors"
+            >
               今すぐサブスク
             </button>
           </div>

@@ -47,17 +47,17 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* ページタイトル */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">ダッシュボード</h1>
         <p className="mt-1 text-sm text-gray-500">
           学習プラットフォームの運営状況を確認できます
         </p>
       </div>
 
       {/* 統計カード */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => {
           const Icon = item.icon;
           return (
@@ -67,14 +67,14 @@ const AdminDashboard: React.FC = () => {
             >
               <dt>
                 <div className="absolute rounded-md bg-blue-500 p-3">
-                  <Icon className="h-6 w-6 text-white" />
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                 </div>
-                <p className="ml-16 truncate text-sm font-medium text-gray-500">
+                <p className="ml-14 sm:ml-16 truncate text-sm font-medium text-gray-500">
                   {item.name}
                 </p>
               </dt>
-              <dd className="ml-16 flex items-baseline">
-                <p className="text-2xl font-semibold text-gray-900">{item.value}</p>
+              <dd className="ml-14 sm:ml-16 flex items-baseline flex-wrap">
+                <p className="text-xl sm:text-2xl font-semibold text-gray-900">{item.value}</p>
                 <p className={`ml-2 flex items-baseline text-sm font-semibold ${
                   item.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
                 }`}>
