@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, CheckCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -55,12 +55,29 @@ const Register: React.FC = () => {
     }
 
     setIsLoading(true);
-    
-    // ダミーの登録処理（実際のAPI接続は行わない）
-    setTimeout(() => {
+    try {
+      const res = await fetch('http://localhost:8000/v1/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        })
+      });
+      if (res.ok) {
+        localStorage.setItem('token', (await res.json()).token);
+        navigate('/login?registered=true');
+      } else {
+        alert((await res.json()).detail.message);
+      }
+    } catch (error) {
+      alert((error as Error).message);
+    } finally {
       setIsLoading(false);
-      navigate('/login?registered=true');
-    }, 2000);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

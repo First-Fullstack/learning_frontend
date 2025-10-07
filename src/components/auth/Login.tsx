@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+// import axios from 'axios';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -40,13 +41,32 @@ const Login: React.FC = () => {
       return;
     }
 
-    setIsLoading(true);
-    
-    // ダミーのログイン処理（実際のAPI接続は行わない）
-    setTimeout(() => {
+    setIsLoading(true); 
+    try {
+      const res = await fetch('http://localhost:8000/v1/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
+      });
+      if (res.ok) {
+        setTimeout(async () => {
+          setIsLoading(false);
+          localStorage.setItem('token', (await res.json()).token);
+          navigate('/');
+        }, 1000);
+      } else {
+        alert((await res.json()).detail.message);
+      }
+    } catch (error) {
+      alert((error as Error).message);
+    } finally {
       setIsLoading(false);
-      navigate('/');
-    }, 1500);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
