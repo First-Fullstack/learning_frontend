@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 
 const PasswordReset: React.FC = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -29,12 +30,26 @@ const PasswordReset: React.FC = () => {
     }
 
     setIsLoading(true);
-    
-    // ダミーの送信処理（実際のAPI接続は行わない）
-    setTimeout(() => {
+    try {
+      const res = await fetch('http://localhost:8000/v1/auth/password/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email,
+        })
+      });      
+      if (res.ok) {
+        navigate('/password-reset/confirm');
+      } else {
+        navigate('/password-reset/confirm')
+      }
+    } catch (error) {
+      alert((error as Error).message);
+    } finally {
       setIsLoading(false);
-      setIsSubmitted(true);
-    }, 2000);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

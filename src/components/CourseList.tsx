@@ -1,14 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { mockCourses, categories } from '../data/mockData';
 import { Play, Lock, Crown, Clock } from 'lucide-react';
 
 const CourseList: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [coursesData, setCoursesData] = useState({
+    courses: [],
+    current_page: 0,
+    total_count: 0,
+    total_pages: 0}
+  );
 
-  const filteredCourses = selectedCategory === 'All' 
-    ? mockCourses 
-    : mockCourses.filter(course => course.category === selectedCategory);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/v1/courses', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setCoursesData(data);          
+        } else {
+          const err = await res.json();
+          alert(err.detail?.message || 'コースを取得できませんでした');
+        }
+      } catch (error) {
+        alert((error as Error).message);
+      }
+    };
+    console.log(coursesData);
+    
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    console.log('Updated coursesData:', coursesData);
+  }, [coursesData]);
+
+  const filteredCourses = selectedCategory === 'All'
+    ? coursesData.courses 
+    : coursesData.courses.filter(course => course.category === selectedCategory);
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {

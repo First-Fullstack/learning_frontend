@@ -1,12 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { mockCourses } from '../data/mockData';
+// import { mockCourses } from '../data/mockData';
 import { Play, Lock, Crown, Clock, CheckCircle, Star, ArrowLeft } from 'lucide-react';
 
 const CourseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const course = mockCourses.find(c => c.id === id);
+  const [course, setCourse] = useState({
+    category_id: null,
+    category_name: null,
+    created_at: "",
+    description: "",
+    difficulty: "",
+    estimated_duration_minutes: 0,
+    id: 0,
+    is_premium: true,
+    status: "published",
+    thumbnail_url: null,
+    title: "",
+    updated_at: "",
+    user_progress: 0,
+    video_url: '',
+  });
+  // const course = mockCourses.find(c => c.id === id);
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const course_id = id;
+        const res = await fetch(`http://localhost:8000/v1/courses/${course_id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+    
+        if (res.ok) {
+          const data = await res.json();
+          setCourse(data);
+        } else {
+          const err = await res.json();
+          alert(err.detail?.message || 'コースを取得できませんでした');
+        }
+      } catch (error) {
+        alert('サーバーエラー');
+      }
+    };
+        
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    console.log('Updated coursesData:', course);
+  }, [course]);
 
   if (!course) {
     return (
@@ -21,7 +67,7 @@ const CourseDetail: React.FC = () => {
     );
   }
 
-  const isLocked = course.isPremium && course.progress === 0;
+  const isLocked = course.is_premium && course.user_progress === 0;
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Beginner': return 'bg-green-100 text-green-700';
@@ -65,7 +111,7 @@ const CourseDetail: React.FC = () => {
                   </div>
                 ) : (
                   <iframe
-                    src={course.videoUrl}
+                    src={course.video_url}
                     title={course.title}
                     className="w-full h-full"
                     frameBorder="0"
@@ -76,7 +122,7 @@ const CourseDetail: React.FC = () => {
               </div>
 
               {/* Premium Badge */}
-              {course.isPremium && (
+              {course.is_premium && (
                 <div className="absolute top-4 right-4">
                   <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-full font-bold flex items-center shadow-lg">
                     <Crown className="w-4 h-4 mr-2" />
@@ -89,10 +135,10 @@ const CourseDetail: React.FC = () => {
             {/* Course Meta */}
             <div className="flex flex-wrap gap-4 mb-6">
               <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-semibold">
-                {course.category === 'Languages' ? '言語' :
-                 course.category === 'Business' ? 'ビジネス' :
-                 course.category === 'Creative' ? 'クリエイティブ' :
-                 course.category === 'Lifestyle' ? 'ライフスタイル' : course.category}
+                {course.category_name === 'Languages' ? '言語' :
+                 course.category_name === 'Business' ? 'ビジネス' :
+                 course.category_name === 'Creative' ? 'クリエイティブ' :
+                 course.category_name === 'Lifestyle' ? 'ライフスタイル' : course.category_name}
               </span>
               <span className={`px-4 py-2 rounded-full font-semibold ${getDifficultyColor(course.difficulty)}`}>
                 {course.difficulty === 'Beginner' ? '初級' :
@@ -128,17 +174,17 @@ const CourseDetail: React.FC = () => {
               <div className="mb-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-gray-600">コース完了率</span>
-                  <span className="font-bold text-gray-800">{course.progress}%</span>
+                  <span className="font-bold text-gray-800">{course.user_progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
                     className="bg-gradient-to-r from-green-400 to-emerald-500 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${course.progress}%` }}
+                    style={{ width: `${course.user_progress}%` }}
                   ></div>
                 </div>
               </div>
               
-              {course.progress > 0 && (
+              {course.user_progress > 0 && (
                 <div className="flex items-center text-green-600">
                   <CheckCircle className="w-5 h-5 mr-2" />
                   <span className="font-semibold">素晴らしい進捗です！頑張りましょう！</span>
