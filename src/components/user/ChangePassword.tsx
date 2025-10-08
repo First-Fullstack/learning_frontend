@@ -49,14 +49,33 @@ const ChangePassword: React.FC = () => {
     if (!validateForm()) {
       return;
     }
-
     setIsLoading(true);
-    
-    // ダミーの処理（実際のAPI接続は行わない）
-    setTimeout(() => {
+    try {
+      const res = await fetch(`http://localhost:8000/v1/users/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          current_password: formData.currentPassword,
+          new_password: formData.newPassword
+        })
+      });
+      if(res.ok) {        
+        setTimeout(() => {
+          setIsLoading(false);
+          setIsSuccess(true);
+        }, 2000);
+      } else {
+        alert('現在のパスワードが正しくありません。');
+      }
+    } catch (error) {
+      alert('サーバーエラー');
+    } finally {
+      // ダミーの処理（実際のAPI接続は行わない）
       setIsLoading(false);
-      setIsSuccess(true);
-    }, 2000);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
