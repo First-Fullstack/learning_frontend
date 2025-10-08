@@ -28,7 +28,7 @@ const CourseList: React.FC = () => {
           alert(err.detail?.message || 'コースを取得できませんでした');
         }
       } catch (error) {
-        alert((error as Error).message);
+        alert('サーバーエラー');
       }
     };
     console.log(coursesData);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Edit, Save } from 'lucide-react';
 
@@ -16,11 +16,11 @@ const ProfilePage: React.FC = () => {
   
   // モックユーザーデータ
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: '田中太郎',
-    email: 'tanaka@example.com',
-    joinDate: '2024年1月',
-    totalCourses: 5,
-    completedCourses: 2
+    name: '',
+    email: '',
+    joinDate: '',
+    totalCourses: 0,
+    completedCourses: 0
   });
 
   const [editForm, setEditForm] = useState({
@@ -28,17 +28,92 @@ const ProfilePage: React.FC = () => {
     email: userProfile.email
   });
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/v1/users/profile`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+    
+        if (res.ok) {
+          const data = await res.json();
+          setUserProfile({
+            name: data.name,
+            email: data.email,
+            joinDate: new Date(data.created_at).toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'long'
+            }),
+            totalCourses: 0,       // default value
+            completedCourses: 0    // default value
+          });
+        } else {
+          alert('失敗した');
+        }
+      } catch (error) {
+        alert('サーバーエラー');
+      }
+    };
+        
+    fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    setEditForm({
+      name: userProfile.name,
+      email: userProfile.email
+    });
+  }, [userProfile]);
+
   const getProgressPercentage = () => {
-    return Math.round((userProfile.completedCourses / userProfile.totalCourses) * 100);
+    return userProfile.totalCourses > 0 
+      ? Math.round((userProfile.completedCourses / userProfile.totalCourses) * 100)
+      : 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setUserProfile(prev => ({
       ...prev,
       name: editForm.name,
       email: editForm.email
     }));
-    setIsEditing(false);
+    
+    try {
+      const res = await fetch(`http://localhost:8000/v1/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          name: editForm.name,
+          email: editForm.email
+        })
+      });
+      if(res.ok) {
+          const data = await res.json();
+          setUserProfile({
+          name: data.name,
+          email: data.email,
+          joinDate: new Date(data.created_at).toLocaleDateString('ja-JP', {
+            year: 'numeric',
+            month: 'long'
+          }),
+          totalCourses: 0,       // default value
+          completedCourses: 0    // default value
+        });
+      } else {
+        alert('失敗した');
+      }
+    } catch (error) {
+      alert('サーバーエラー');
+    } finally {
+      setIsEditing(false);
+    }
   };
 
   const handleCancel = () => {

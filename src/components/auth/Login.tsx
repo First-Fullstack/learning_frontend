@@ -59,8 +59,8 @@ const Login: React.FC = () => {
           localStorage.setItem('token', (await res.json()).token);
           navigate('/');
         }, 1000);
-      } else {
-        alert((await res.json()).detail.message);
+      } else {        
+        alert((await res.json()).detail);
       }
     } catch (error) {
       alert((error as Error).message);
