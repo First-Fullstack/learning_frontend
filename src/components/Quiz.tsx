@@ -5,6 +5,8 @@ import { CheckCircle, XCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const Quiz: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
+  console.log(courseId);
+  
   const navigate = useNavigate();
   const quiz = mockQuizzes.find(q => q.courseId === courseId);
 

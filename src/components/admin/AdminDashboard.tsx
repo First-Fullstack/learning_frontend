@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Users, 
   BookOpen, 
   CreditCard, 
   TrendingUp
 } from 'lucide-react';
-import { dashboardStats } from '../../data/adminMockData';
 
 const AdminDashboard: React.FC = () => {
   const formatCurrency = (amount: number) => {
@@ -15,36 +14,106 @@ const AdminDashboard: React.FC = () => {
     }).format(amount);
   };
 
-  const stats = [
+  const [totalData, setTotalData] = useState({
+    total_users: 0,
+    total_courses: 0,
+    active_subscriptions: 0,
+    total_revenue: 0,
+    monthly_growth: 0
+  });
+
+  const [stats, setStats] = useState([
     {
       name: '登録ユーザー数',
-      value: dashboardStats.totalUsers.toLocaleString(),
+      value: 0,
       icon: Users,
       change: '+12%',
       changeType: 'positive'
     },
     {
       name: '講座数',
-      value: dashboardStats.totalCourses,
+      value: 0,
       icon: BookOpen,
       change: '+3',
       changeType: 'positive'
     },
     {
       name: 'アクティブ契約数',
-      value: dashboardStats.activeSubscriptions.toLocaleString(),
+      value: 0,
       icon: CreditCard,
       change: '+8%',
       changeType: 'positive'
     },
     {
       name: '月間売上',
-      value: formatCurrency(dashboardStats.totalRevenue),
+      value: formatCurrency(0),
       icon: TrendingUp,
-      change: `+${dashboardStats.monthlyGrowth}%`,
+      change: `+${0}%`,
       changeType: 'positive'
     }
-  ];
+  ]);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/v1/admin/dashboard`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+    
+        if (res.ok) {
+          const data = await res.json();
+          console.log(data);
+          
+          setTotalData(data);
+        } else {
+          const err = await res.json();
+          alert(err.detail?.message || 'コースを取得できませんでした');
+        }
+      } catch (error) {
+        alert('サーバーエラー');
+      }
+    };
+        
+    fetchDashboard();
+  }, []);
+
+  useEffect(() => {
+    if (!totalData) return;
+    setStats([
+      {
+        name: '登録ユーザー数',
+        value: totalData.total_users,
+        icon: Users,
+        change: '+12%',
+        changeType: 'positive',
+      },
+      {
+        name: '講座数',
+        value: totalData.total_courses,
+        icon: BookOpen,
+        change: '+3',
+        changeType: 'positive',
+      },
+      {
+        name: 'アクティブ契約数',
+        value: totalData.active_subscriptions,
+        icon: CreditCard,
+        change: '+8%',
+        changeType: 'positive',
+      },
+      {
+        name: '月間売上',
+        value: formatCurrency(totalData.total_revenue),
+        icon: TrendingUp,
+        change: `+${totalData.monthly_growth}%`,
+        changeType: 'positive',
+      },
+    ]);
+  }, [totalData]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -58,7 +127,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((item) => {
+        {stats.map((item) => {          
           const Icon = item.icon;
           return (
             <div
