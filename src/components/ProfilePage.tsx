@@ -68,12 +68,36 @@ const ProfilePage: React.FC = () => {
       email: userProfile.email
     });
   }, [userProfile]);
-
-  const getProgressPercentage = () => {
-    return userProfile.totalCourses > 0 
-      ? Math.round((userProfile.completedCourses / userProfile.totalCourses) * 100)
-      : 0;
+  
+  const getProgressPercentage = async () => {
+    try {
+      const res = await fetch(`http://localhost:8000/v1/users/progress`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        }
+      });
+      if(res.ok) {
+        const data = await res.json();
+        return data[0].progress_percentage;    ///must change this part
+      } else {
+        return 0;
+      }
+    } catch (error) {
+      return 0;
+    }
   };
+
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const fetchProgress = async () => {
+      const p = await getProgressPercentage();
+      setProgress(p);
+    };
+    fetchProgress();
+  }, []);
 
   const handleSave = async () => {
     setUserProfile(prev => ({
@@ -97,15 +121,15 @@ const ProfilePage: React.FC = () => {
       if(res.ok) {
           const data = await res.json();
           setUserProfile({
-          name: data.name,
-          email: data.email,
-          joinDate: new Date(data.created_at).toLocaleDateString('ja-JP', {
-            year: 'numeric',
-            month: 'long'
-          }),
-          totalCourses: 0,       // default value
-          completedCourses: 0    // default value
-        });
+            name: data.name,
+            email: data.email,
+            joinDate: new Date(data.created_at).toLocaleDateString('ja-JP', {
+              year: 'numeric',
+              month: 'long'
+            }),
+            totalCourses: 0,       // default value
+            completedCourses: 0    // default value
+          });
       } else {
         alert('失敗した');
       }
@@ -257,12 +281,12 @@ const ProfilePage: React.FC = () => {
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-medium text-gray-700">完了率</span>
-                  <span className="text-sm font-medium text-gray-700">{getProgressPercentage()}%</span>
+                  <span className="text-sm font-medium text-gray-700">{progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div 
                     className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${getProgressPercentage()}%` }}
+                    style={{ width: `${progress}%` }}
                   ></div>
                 </div>
               </div>
