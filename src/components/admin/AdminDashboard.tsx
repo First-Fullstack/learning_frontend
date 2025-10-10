@@ -65,9 +65,7 @@ const AdminDashboard: React.FC = () => {
         });
     
         if (res.ok) {
-          const data = await res.json();
-          console.log(data);
-          
+          const data = await res.json();          
           setTotalData(data);
         } else {
           const err = await res.json();

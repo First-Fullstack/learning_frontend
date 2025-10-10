@@ -1,18 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Filter, Eye, Edit, Trash2 } from 'lucide-react';
-import { adminUsers } from '../../data/adminMockData';
+import dayjs from "dayjs";
+// import { adminUsers } from '../../data/adminMockData';
+interface User {
+  name: string;
+  email: string;
+  subscriptionStatus: string;
+  last_login_at: string;
+  id: number;
+}
 
 const AdminUsers: React.FC = () => {
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [users] = useState(adminUsers);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || user.subscriptionStatus === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch('http://localhost:8000/v1/admin/users', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log('Fetched users:', data);
+
+          // Adjust based on your API response
+          // If your API returns { users: [...] }:
+          setUsers(Array.isArray(data.users) ? data.users : []);
+          setUsers(
+            Array.isArray(data.users)
+              ? data.users.map((u: User) => ({
+                  ...u,
+                  last_login_at: dayjs(u.last_login_at).format("YYYY-MM-DD"),
+                }))
+              : []
+          );
+          // If your API returns an array directly:
+          // setUsers(Array.isArray(data) ? data : []);
+        } else {
+          const err = await res.json();
+          alert(err.detail?.message || 'ユーザーを取得できませんでした');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('サーバーエラー');
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Safe filteredUsers computation
+  const filteredUsers = Array.isArray(users)
+    ? users.filter((user) => {
+        const name = user.name?.toLowerCase() || '';
+        const email = user.email?.toLowerCase() || '';
+        const matchesSearch =
+          name.includes(searchTerm.toLowerCase()) || email.includes(searchTerm.toLowerCase());
+        const matchesStatus =
+          statusFilter === 'all' || user.subscriptionStatus === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+    : [];
+
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -125,7 +181,7 @@ const AdminUsers: React.FC = () => {
                     {getStatusBadge(user.subscriptionStatus)}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
-                    {user.joinDate}
+                    {user.last_login_at}
                   </td>
                   <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-1 sm:space-x-2">
